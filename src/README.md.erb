@@ -2,13 +2,11 @@
 
 **User reference of Ruby Language core exceptions in tree-format.**
 
-[![Build Status](https://travis-ci.org/binarybabel/ruby-exception-hierarchy.svg?branch=latest)](https://travis-ci.org/binarybabel/ruby-exception-hierarchy) [![Latestver](https://lv.binarybabel.org/catalog-api/ruby/latest.svg?v=<%= RUBY_VERSION %>)](https://lv.binarybabel.org/catalog/ruby/latest)
+[![Build Status](https://travis-ci.org/binarybabel/ruby-exception-hierarchy.svg?branch=worker)](https://travis-ci.org/binarybabel/ruby-exception-hierarchy) [![Latestver](https://lv.binarybabel.org/catalog-api/ruby/latest.svg?v=<%= RUBY_VERSION %>)](https://lv.binarybabel.org/catalog/ruby/latest)
 
-The latest branch is updated automatically when new versions of Ruby are released, through the use of webhooks provided by the [Latestver](https://lv.binarybabel.org) dependency tracking tool, a [BinaryBabel OSS Project](https://github.com/binarybabel/latestver#readme). _Check the [GitHub Tags](https://github.com/binarybabel/ruby-exception-hierarchy/releases) to review older results._
+The latest branch is updated automatically when new versions of Ruby are released, through the use of webhooks provided by the [Latestver](https://lv.binarybabel.org) dependency tracking tool. _Prior version results are available as [GitHub Tags](https://github.com/binarybabel/ruby-exception-hierarchy/releases)._
 
 ## Ruby <%= RUBY_VERSION %> Exceptions
-
-_**`rescue`** statements default to `StandardError` and sub-classes_
 
 ```
 <%= # GENERATE EXCEPTION HIERARCHY
@@ -26,10 +24,18 @@ end
 
 tree_printer = Proc.new do |t, indent, swap|
   t.keys.sort { |c1,c2| c1.name <=> c2.name }.each do |k|
-    next unless k.to_s.index('::').nil?
-    space = (' ' * indent); space ||= ''
-    swap.push(space + k.to_s)
-    tree_printer.call t[k], indent+2, swap
+    memo = k.to_s
+    if memo.index('::').nil?
+      if memo == 'StandardError'
+        memo << '            <--- default for "rescue" statements'
+      end
+
+      space = (' ' * indent); space ||= ''
+      swap.push(space + memo)
+      tree_printer.call t[k], indent+2, swap
+    else
+      tree_printer.call t[k], indent, swap
+    end
   end
   swap
 end
@@ -43,6 +49,8 @@ output.join("\n")
 #
 %>
 ```
+
+* Also see `REPORT.txt` for a text-only edition.
 
 ## Maintainer
 * The build mechanics for this project are available at:

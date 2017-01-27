@@ -1,0 +1,23 @@
+<%=
+tree_printer = Proc.new do |t, indent, swap|
+  t.keys.sort { |c1,c2| c1.name <=> c2.name }.each do |k|
+    memo = k.to_s
+    if memo.index('::').nil?
+      space = (' ' * indent); space ||= ''
+      swap.push(space + memo)
+      tree_printer.call t[k], indent+2, swap
+    else
+      tree_printer.call t[k], indent, swap
+    end
+  end
+  swap
+end
+
+#
+# Exception tree adapted from code by Nick Sieger
+# http://blog.nicksieger.com/articles/2006/09/06/rubys-exception-hierarchy/
+#
+
+output = tree_printer.call @data, 0, []
+output.join("\n")
+%>

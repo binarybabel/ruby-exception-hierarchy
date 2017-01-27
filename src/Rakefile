@@ -1,11 +1,27 @@
-require 'bundler/setup'
 require 'erubis'
 
 task :build do
-  input = File.read('README.erb')
-  eruby = Erubis::Eruby.new(input)
-  output = eruby.result(binding())
-  File.open('README.md', 'w') { |file| file.write(output) }
+  exceptions_discovered = []
+  exceptions_hierarchy  = {}
+
+  ObjectSpace.each_object(Class) do |klass|
+    next unless klass.ancestors.include? Exception
+    next if exceptions_discovered.include? klass
+    next if klass.superclass == SystemCallError
+    exceptions_discovered << klass
+    klass.ancestors.delete_if {|e| [Object, Kernel].include? e }.reverse.inject(exceptions_hierarchy) {|memo,klass| memo[klass] ||= {}}
+  end
+
+  @data = exceptions_hierarchy
 end
 
-task :default => [:build]
+task :report => [:build] do
+  %w{REPORT.txt README.md}.each do |template|
+    input = File.read("#{template}.erb")
+    eruby = Erubis::Eruby.new(input)
+    output = eruby.result(binding())
+    File.open(template, 'w') { |file| file.write(output) }
+  end
+end
+
+task :default => [:report]

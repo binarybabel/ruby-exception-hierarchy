@@ -11,14 +11,14 @@ env:
 
 script:
   - cp -ra src dist
-  #- curl -fo dist/VERSION.txt https://lv.binarybabel.org/catalog-api/ruby/latest.txt?p=version
-  #- echo "${APPNAME} latest version:" && cat dist/RUBY_VERSION.txt
+  - curl -fo dist/RUBY_VERSION.txt https://lv.binarybabel.org/catalog-api/ruby/latest.txt?p=version
+  - echo "${APPNAME} latest version:" && cat dist/RUBY_VERSION.txt
 
 after_success:
   - cd dist
   # PIN RUBY VERSION
-  #- export VERSION=$(cat RUBY_VERSION.txt)
-  #- sed -i'' "s/%VERSION%/${VERSION}/g" .travis.yml
+  - export VERSION=$(cat RUBY_VERSION.txt)
+  - sed -i'' "s/%VERSION%/${VERSION}/g" .travis.yml
   # CREATE GIT BUILDNEXT BRANCH FOR TRAVIS PICKUP
   - git config --global user.email "builds@travis-ci.com"
   - git config --global user.name "Travis CI"
